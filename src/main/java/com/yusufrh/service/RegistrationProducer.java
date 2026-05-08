@@ -3,6 +3,7 @@ package com.yusufrh.service;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yusufrh.config.AppProperties;
 import com.yusufrh.entity.UserRegisteredEvent;
 
@@ -11,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.KafkaSender;
 import reactor.kafka.sender.SenderRecord;
-import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
