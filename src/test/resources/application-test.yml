@@ -1,0 +1,24 @@
+# Test configuration for registration-service
+
+spring:
+  profiles:
+    active: test
+
+# Kafka configuration for testing
+kafka:
+  kafkaProperties:
+    bootstrapServers: localhost:9092
+
+# Application properties for testing
+app:
+  topics:
+    registrationTopic: user-registration-test
+
+# Logging configuration for tests
+logging:
+  level:
+    com.yusufrh: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.kafka: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
