@@ -1,0 +1,23 @@
+server:
+  port: ${SERVER_PORT:9023}
+
+kafka:
+  kafka-properties:
+    bootstrap-servers: localhost:9092
+
+app:
+  topics:
+    registration-topic: demo-user-registrations
+    approval-topic: demo-approval-status  
+
+logging:
+  level:
+    root: INFO                
+    com.yusufrh: DEBUG        
+    org.apache.kafka: WARN    
+    org.apache.zookeeper: WARN
+    io.netty: WARN            
+    reactor.netty: WARN       
+    org.springframework.web: WARN
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
