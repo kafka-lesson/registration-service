@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+     options {
+        timestamps()
+    }
+
     environment {
-        IMAGE_NAME = "ghcr.io/USERNAME/registration-service"
+        IMAGE_NAME = "ghcr.io/masjusufrh/registration-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
@@ -27,10 +31,10 @@ pipeline {
             }
         }
 
-        /*stage('Push Image') {
+        stage('Push Image') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'ghcr-creds',
+                    credentialsId: 'ghcr-masjusufrh-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -41,7 +45,7 @@ pipeline {
                     '''
                 }
             }
-        }*/
+        }
 
         /*stage('Deploy') {
             steps {
