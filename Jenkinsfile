@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "ghcr.io/USERNAME/registration-service"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                url: 'https://github.com/kafka-lesson/registration-service.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+
+        /*stage('Push Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'ghcr-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh '''
+                    echo $DOCKER_PASS | docker login ghcr.io -u $DOCKER_USER --password-stdin
+                    docker push $IMAGE_NAME:$IMAGE_TAG
+                    '''
+                }
+            }
+        }*/
+
+        /*stage('Deploy') {
+            steps {
+                sh '''
+                sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml
+                kubectl apply -f k8s/
+                '''
+            }
+        }*/
+    }
+}
