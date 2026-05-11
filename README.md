@@ -71,7 +71,7 @@ You can have only 1 Kafka broker or 3 Kafka brokres
 
 ## ⚙️ Configuration
 
-Konfigurasi aplikasi dapat diatur melalui application.yml atau environment variables.
+Configuration via application.yml or environment variables.
 
 Application Properties
 
