@@ -1,30 +1,35 @@
 # Kafka Sharing Knowledge - User Registration Demo
 
-Proyek ini adalah demonstrasi implementasi **Apache Kafka** menggunakan **Spring Boot WebFlux** dan **Reactor Kafka**. Proyek ini menunjukkan bagaimana cara memproduksi event user registration ke Kafka topic secara asinkron dan non-blocking.
+This project demonstrates an **Apache Kafka** implementation using **Spring Boot WebFlux** and **Reactor Kafka**. It demonstrates how to produce user registration events to a Kafka topic asynchronously and non-blockingly.
 
 ## 📋 Daftar Isi
 
-- [Teknologi yang Digunakan](#teknologi-yang-digunakan)
-- [Arsitektur Sederhana](#arsitektur-sederhana)
-- [Prasyarat](#prasyarat)
-- [Konfigurasi](#konfigurasi)
-- [Cara Menjalankan](#cara-menjalankan)
+- [Tech stack](#tech-stack)
+- [Simple Architecture](#simple-architecture)
+- [Prerequisite](#prerequisite)
+- [Configuration](#configuration)
+- [How to run](#how-to-run)
 - [Endpoint API](#endpoint-api)
-- [Struktur Proyek](#struktur-proyek)
-- [Alur Event](#alur-event)
+- [Project Structure](#project-structure)
+- [Flow Event](#event-flow)
+- [Kafka Monitoring](#kafka-monitoring)
+- [Testing](#testing)
+- [License](#license)
 
-## 🚀 Teknologi yang Digunakan
 
-| Teknologi | Versi | Kegunaan |
+## 🚀 Tech stack
+
+| Tech | Version | Utility |
 |-----------|-------|----------|
-| Spring Boot | 4.x | Framework utama |
+| Spring Boot | 3.5.x | Core Framework |
 | Spring WebFlux | - | Reactive REST API |
 | Reactor Kafka | - | Kafka Producer reactive |
-| Apache Kafka | 3.7.x | Message broker |
+| Apache Kafka with Zookeeper | 3.7.x | Message broker |
 | Project Lombok | - | Boilerplate code reduction |
 | Jackson | - | JSON serialization |
 
-## 🏗️ Arsitektur Sederhana
+
+## 🏗️ Simple Architecture
 
 ```text
 ┌─────────────┐          ┌──────────────┐         ┌─────────────┐
@@ -40,20 +45,22 @@ Proyek ini adalah demonstrasi implementasi **Apache Kafka** menggunakan **Spring
                                                  └───────────────┘
 ```
 
-## 📦 Prasyarat
+## 📦 Prerequisite
 
-Sebelum menjalankan proyek ini, pastikan Anda memiliki:
+Before undertaking this project, make sure you have:
 
-1. **Java 21** atau lebih baru
-2. **Apache Kafka** (bisa menggunakan Docker atau instalasi lokal)
-3. **Maven** atau **Gradle** (sesuai project build tool)
+1. **Java 21** or newer
+2. **Apache Kafka with zookeeper** (You may use docker or local installation)
+3. **Maven**
 
-### Menjalankan Kafka dengan Docker (Opsional)
+### Running Kafka inside Docker (Optional)
 
-# Jalankan Zookeeper
+You can have only 1 Kafka broker or 3 Kafka brokres
+
+# run Zookeeper
 ```docker run -d --name zookeeper -p 2181:2181 zookeeper:latest```
 
-# Jalankan Kafka
+# run Kafka
 ```docker run -d --name kafka \
   -p 9092:9092 \
   -e KAFKA_ZOOKEEPER_CONNECT=host.docker.internal:2181 \
@@ -61,7 +68,8 @@ Sebelum menjalankan proyek ini, pastikan Anda memiliki:
   -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
   confluentinc/cp-kafka:latest
 ```
-⚙️ Konfigurasi
+
+## ⚙️ Configuration
 
 Konfigurasi aplikasi dapat diatur melalui application.yml atau environment variables.
 
@@ -69,7 +77,7 @@ Application Properties
 
 ```
 server:
-  port: 9023  # atau via SERVER_PORT
+  port: 9023  # SERVER_PORT
 
 kafka:
   kafka-properties:
@@ -81,15 +89,17 @@ app:
     approval-topic: demo-approval-status
 ```
 
-Environment Variables
+### Environment Variables
 
-Variable Default Deskripsi
-SERVER_PORT 9023 Port aplikasi
-KAFKA_BOOTSTRAP_SERVERS localhost:9092 Alamat Kafka broker
+|Variable                 | Default | Description |
+|-------------------------|---------|-------------|
+|SERVER_PORT | 9023 | Port of application | 
+|KAFKA_BOOTSTRAP_SERVERS | localhost:9092 | Address of Kafka broker |
 
-🏃 Cara Menjalankan
 
-1. Clone / Buka project
+## 🏃 How to run
+
+1. Clone and open the project
 ``` 
 git clone https://github.com/kafka-lesson/registration-service.git 
 ```
@@ -98,35 +108,37 @@ git clone https://github.com/kafka-lesson/registration-service.git
 cd your-project-directory
 ```
 
-2. Pastikan Kafka sedang berjalan
+2. Make sure Kafka is running
 
 bash
-# Cek koneksi Kafka
+# Check Kafka connection
 ```
 nc -zv localhost 9092
 ```
 
-3. Jalankan aplikasi Spring Boot
+3. Run the app
 
 Maven:
 ```
 ./mvnw spring-boot:run
 ```
 
-4. Cek log aplikasi
+4. Check logs
 
-Aplikasi akan menampilkan log seperti:
+The application prints this in console:
 
 ```
 2024-01-15 10:30:00 INFO  --- [main] c.y.RUserRegistrationApplication : Started
 2024-01-15 10:30:00 INFO  --- [main] --- Netty started on port 9023
 ```
 
-📡 Endpoint API
+## 📡 Endpoint API
 
 Register User
 
+```
 Endpoint: POST /api/users/register
+```
 
 Request Body:
 
@@ -156,7 +168,7 @@ curl -X POST http://localhost:9023/api/users/register \
   }'
 ```
 
-📁 Struktur Proyek
+## 📁 Project Structure
 
 ```
 src/
@@ -176,26 +188,26 @@ src/
 │       └── application.yml                # Application configuration
 ```
 
-🔄 Alur Event
+## 🔄 Event Flow
 
-1. Client mengirim POST request ke /api/users/register
-2. RegisterController menerima request dan membuat UserRegisteredEvent dengan UUID baru
-3. RegistrationProducer melakukan:
-   · Serialisasi event ke JSON menggunakan Jackson
-   · Membuat ProducerRecord dengan key = userId, value = JSON payload
-   · Mengirim ke Kafka topic demo-user-registrations menggunakan Reactor Kafka
-4. Kafka menyimpan event di topic
-5. Response dikembalikan ke client (reactive, non-blocking)
+1. Client sends POST request to ``` /api/users/register ```
+2. RegisterController receives request and create UserRegisteredEvent using new UUID
+3. RegistrationProducer does:
+   · Serialize events to JSON using Jackson
+   · Create a ProducerRecord with key = userId, value = JSON payload
+   · Sending to Kafka topic demo-user-registrations using Reactor Kafka
+4. Kafka stores events in topics
+5. Simple Response is returned to the client (reactive, non-blocking)
 
-📊 Monitoring Kafka
+## 📊 Kafka Monitoring
 
-Melihat topic yang tersedia
+To check the available topics
 
 ```
 kafka-topics --bootstrap-server localhost:9092 --list
 ```
 
-Mengonsumsi pesan dari topic
+Consume messages from a topic
 
 ```
 kafka-console-consumer --bootstrap-server localhost:9092 \
@@ -203,13 +215,13 @@ kafka-console-consumer --bootstrap-server localhost:9092 \
   --from-beginning
 ```
 
-Output contoh:
+Sample output:
 
 ```
 {"userId":"123e4567-e89b-12d3-a456-426614174000","age":25,"email":"john@example.com","username":"john_doe"}
 ```
 
-🧪 Testing
+## 🧪 Testing
 
 Unit Test (contoh)
 
@@ -245,9 +257,12 @@ Reactor Kafka timeout Cek koneksi jaringan dan restart Kafka
 · Untuk consumer implementation, bisa ditambahkan @KafkaListener atau Reactor Kafka consumer
 · Gunakan environment variables untuk konfigurasi production
 
+## License
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
 👨‍💻 Author
 
 Yusuf RH - Sharing Knowledge Session - Kafka with Reactive Spring
-
----
-
