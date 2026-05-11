@@ -31,6 +31,14 @@ pipeline {
             }
         }
 
+        stage('Security Scan') {
+            steps {
+                sh '''
+                trivy image --exit-code 1 --severity CRITICAL,HIGH $IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
+
         stage('Push Image') {
             steps {
                 withCredentials([usernamePassword(
