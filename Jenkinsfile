@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "ghcr.io/masjusufrh/registration-service"
+        IMAGE_NAME = "ghcr.io/masjusufrh/demo-kafka/registration-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
