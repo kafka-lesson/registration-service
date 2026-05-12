@@ -55,13 +55,13 @@ pipeline {
             }
         }
 
-        /*stage('Deploy') {
+        stage('Deploy') {
             steps {
                 sh '''
                 sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml
                 kubectl apply -f k8s/
                 '''
             }
-        }*/
+        }
     }
 }
