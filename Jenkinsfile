@@ -8,6 +8,8 @@ pipeline {
     environment {
         IMAGE_NAME = "ghcr.io/masjusufrh/demo-kafka/registration-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        DOJO_TOKEN = credentials('DEFECTDOJO_API_TOKEN')
+        DOJO_URL   = "http://10.28.224.218/"
     }
 
     stages {
@@ -35,6 +37,23 @@ pipeline {
             steps {
                 sh '''
                 trivy image --exit-code 1 --severity CRITICAL,HIGH $IMAGE_NAME:$IMAGE_TAG || true
+                '''
+            }
+        }
+
+        stage('Upload to DefectDojo') {
+            steps {
+                // Send the JSON report to DefectDojo
+                sh '''
+                curl -X POST "${DOJO_URL}/api/v2/import-scan/" \
+                  -H "Authorization: Token ${DOJO_TOKEN}" \
+                  -F "scan_type=Trivy Scan" \
+                  -F "file=@trivy-results.json" \
+                  -F "product_name=My_Application" \
+                  -F "engagement_name=Jenkins_Automated_Scan" \
+                  -F "auto_create_context=true" \
+                  -F "active=true" \
+                  -F "verified=true"
                 '''
             }
         }
