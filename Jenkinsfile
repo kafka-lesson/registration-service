@@ -9,7 +9,7 @@ pipeline {
         IMAGE_NAME = "ghcr.io/masjusufrh/demo-kafka/registration-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOJO_TOKEN = credentials('DEFECTDOJO_API_TOKEN')
-        DOJO_URL   = "http://10.28.224.218/"
+        DOJO_URL   = "http://10.28.224.218"
     }
 
     stages {
@@ -33,19 +33,30 @@ pipeline {
             }
         }
 
-        stage('Security Scan') {
+        stage('Trivy Vulnerability Scan') {
             steps {
+                // Run Trivy and force the output to a specific JSON file
                 sh '''
-                trivy image --exit-code 1 --severity CRITICAL,HIGH $IMAGE_NAME:$IMAGE_TAG || true
+                echo "Running Trivy Scan..."
+                trivy image --format json --output trivy-results.json ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
         }
 
         stage('Upload to DefectDojo') {
             steps {
-                // Send the JSON report to DefectDojo
                 sh '''
-                curl -X POST "${DOJO_URL}/api/v2/import-scan/" \
+                echo "Checking if the file exists..."
+                ls -la  # This will list all files in the Jenkins console log!
+                
+                if [ ! -f "trivy-results.json" ]; then
+                    echo "ERROR: trivy-results.json was not found! The scan must have failed."
+                    exit 1
+                fi
+                
+                echo "Uploading to DefectDojo..."
+                # Note: I removed the trailing slash from DOJO_URL to fix the double // in your logs
+                curl -X POST "${DOJO_URL}api/v2/import-scan/" \
                   -H "Authorization: Token ${DOJO_TOKEN}" \
                   -F "scan_type=Trivy Scan" \
                   -F "file=@trivy-results.json" \
