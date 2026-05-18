@@ -56,7 +56,7 @@ pipeline {
                 
                 echo "Uploading to DefectDojo..."
                 # Note: I removed the trailing slash from DOJO_URL to fix the double // in your logs
-                curl -X POST "${DOJO_URL}api/v2/import-scan/" \
+                curl -X POST "${DOJO_URL}/api/v2/import-scan/" \
                   -H "Authorization: Token ${DOJO_TOKEN}" \
                   -F "scan_type=Trivy Scan" \
                   -F "file=@trivy-results.json" \
